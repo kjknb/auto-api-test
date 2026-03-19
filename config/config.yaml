@@ -1,0 +1,33 @@
+# config/config.yaml
+# 多环境配置文件
+
+env: test  # 当前环境：dev / test / prod
+
+# 飞书通知（从环境变量读取，不存明文）
+# 需要时设置: export FEISHU_WEBHOOK_URL="https://open.feishu.cn/..."
+
+env_config:
+  dev:
+    base_url: "http://localhost:8080"
+    headers:
+      Content-Type: "application/json"
+
+  test:
+    base_url: "http://localhost:8080"
+    headers:
+      Content-Type: "application/json"
+
+  prod:
+    base_url: "https://api.example.com"
+    headers:
+      Content-Type: "application/json"
+
+# 登录配置
+login:
+  auto_login: true
+  username: "test_user"
+  password: "123456"
+  token_key: "data.token"
+  token_prefix: "Bearer"
+  path: "/user/login"
+  method: "POST"

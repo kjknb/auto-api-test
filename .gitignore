@@ -1,0 +1,43 @@
+# .gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+*.pyo
+*.egg-info/
+*.egg
+dist/
+build/
+.eggs/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project
+reports/allure-results/
+reports/allure-report/
+reports/logs/
+*.log
+
+# Sensitive files
+config/token.yaml
+config/config.local.yaml
+
+# Pytest
+.pytest_cache/
