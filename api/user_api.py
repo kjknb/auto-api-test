@@ -38,4 +38,4 @@ class UserApi:
 
     def delete_user(self, user_id: int):
         """删除用户"""
-        return self.req.delete(f"/user/delete", params={"id": user_id})
+        return self.req.delete("/user/delete", params={"id": user_id})

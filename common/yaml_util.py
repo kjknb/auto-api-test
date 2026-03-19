@@ -36,7 +36,7 @@ def append_yaml(key, value, file_path=EXTRACT_PATH):
 def clear_yaml(file_path=EXTRACT_PATH):
     """清空 YAML 文件"""
     with open(file_path, "w", encoding="utf-8") as f:
-        f.truncate()
+        pass  # "w" 模式已自动截断文件
 
 
 def _save_yaml(file_path, data):

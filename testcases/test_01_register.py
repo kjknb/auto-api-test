@@ -4,7 +4,7 @@
 import pytest
 from api.user_api import UserApi
 from common.assert_util import AssertUtil
-from common.context_util import save_context, get_context
+from common.context_util import save_context
 
 
 @pytest.mark.dependency(name="register", scope="session")
@@ -12,6 +12,7 @@ class TestRegister:
 
     @pytest.mark.parametrize("case", [
         {"title": "正常注册", "username": "test_user_001", "password": "123456", "expected_code": 0},
+        {"title": "重复注册", "username": "test_user_001", "password": "123456", "expected_code": 1001},
         {"title": "空用户名", "username": "", "password": "123456", "expected_code": 1002},
     ], ids=lambda c: c["title"])
     def test_register(self, user_api: UserApi, case):
