@@ -1,18 +1,27 @@
+# ============================================================
 # Dockerfile.jenkins
-# 自定义 Jenkins 镜像（预装 Python + 测试依赖 + Allure）
+# 自定义 Jenkins 镜像 —— 预装 Python 3、测试依赖和 Allure CLI
+# 这样 Jenkins 启动后就能直接跑 Python 测试，不用每次装依赖
+# ============================================================
+
 FROM jenkins/jenkins:lts-jdk17
 
 USER root
 
 RUN set -eux; \
     apt-get update; \
+    # 安装 Python 3 和 pip
     apt-get install -y --no-install-recommends python3 python3-pip curl unzip; \
+    # 使用国内镜像加速 pip 安装
     pip3 config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple; \
+    # 安装测试框架依赖（与 requirements.txt 保持一致）
     pip3 install requests pytest allure-pytest pyyaml colorlog pytest-dependency pytest-base-url pytest-html pytest-metadata --break-system-packages; \
+    # 安装 Allure CLI（测试报告生成工具）
     curl -o allure.zip -L https://github.com/allure-framework/allure2/releases/download/2.29.0/allure-2.29.0.zip; \
     unzip allure.zip -d /opt/; \
     ln -s /opt/allure-2.29.0/bin/allure /usr/bin/allure; \
     rm -f allure.zip; \
+    # 清理缓存，减小镜像体积
     apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 

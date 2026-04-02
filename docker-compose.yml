@@ -1,9 +1,13 @@
+# ============================================================
 # docker-compose.yml
-# 一键启动：被测服务 + 数据库 + Redis + Jenkins
+# 一键部署 —— 启动被测服务 + MySQL + Redis + Jenkins
+# 用法：docker-compose up -d
+# ============================================================
+
 version: "3.8"
 
 services:
-  # MySQL
+  # ---- MySQL 数据库 ----
   mysql:
     image: mysql:8.0
     container_name: auto-test-mysql
@@ -12,18 +16,19 @@ services:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
       MYSQL_DATABASE: ${DB_NAME:-appdb}
     ports:
-      - "3307:3306"
+      - "3307:3306"         # 宿主机 3307 端口映射到容器 3306（避免与本地 MySQL 冲突）
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-data:/var/lib/mysql    # 数据持久化
     networks:
       - test_net
     healthcheck:
+      # 健康检查：MySQL 能 ping 通才算启动完成
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_PASSWORD:-123456}"]
       interval: 5s
       timeout: 5s
       retries: 10
 
-  # Redis
+  # ---- Redis 缓存 ----
   redis:
     image: redis:7.2
     container_name: auto-test-redis
@@ -34,7 +39,7 @@ services:
     networks:
       - test_net
 
-  # 被测服务（根据实际项目修改）
+  # ---- 被测服务（根据实际项目替换 Dockerfile） ----
   app:
     build:
       context: .
@@ -43,7 +48,7 @@ services:
     restart: always
     depends_on:
       mysql:
-        condition: service_healthy
+        condition: service_healthy    # 等 MySQL 健康检查通过后再启动
       redis:
         condition: service_started
     ports:
@@ -60,7 +65,7 @@ services:
     networks:
       - test_net
 
-  # Jenkins
+  # ---- Jenkins（CI/CD 服务） ----
   jenkins:
     build:
       context: .
@@ -69,22 +74,24 @@ services:
     user: root
     restart: always
     ports:
-      - "9090:8080"
-      - "50000:50000"
+      - "9090:8080"         # 访问 Jenkins：http://localhost:9090
+      - "50000:50000"       # Jenkins agent 通信端口
     volumes:
-      - jenkins_home:/var/jenkins_home
-      - /var/run/docker.sock:/var/run/docker.sock
+      - jenkins_home:/var/jenkins_home                    # Jenkins 数据持久化
+      - /var/run/docker.sock:/var/run/docker.sock         # 允许 Jenkins 使用宿主机 Docker
       - /usr/bin/docker:/usr/bin/docker
-      - /etc/localtime:/etc/localtime:ro
+      - /etc/localtime:/etc/localtime:ro                  # 同步时区
     environment:
-      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"  # 跳过安装向导
     networks:
       - test_net
 
+# ---- 数据卷 ----
 volumes:
-  mysql-data:
-  jenkins_home:
+  mysql-data:       # MySQL 数据
+  jenkins_home:     # Jenkins 配置和构建历史
 
+# ---- 内部网络 ----
 networks:
   test_net:
     driver: bridge

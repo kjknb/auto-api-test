@@ -1,12 +1,13 @@
 # ============================================================
-# config/config.yaml
-# 多环境配置文件 —— 控制测试框架的环境切换、登录和通知
+# config/config.yaml.example
+# 多环境配置文件模板 —— 复制为 config.yaml 后按需修改
+# 用法：cp config/config.yaml.example config/config.yaml
 # ============================================================
 
-# 当前使用的环境（切换环境只需改这一行：dev / test / prod）
+# 当前使用的环境（可选值：dev / test / prod）
 env: test
 
-# 飞书通知 Webhook（从环境变量读取，不在配置文件中存明文）
+# 飞书通知 Webhook（推荐通过环境变量设置，不要写在这里）
 # export FEISHU_WEBHOOK_URL="https://open.feishu.cn/..."
 
 # ------------------------------------------------------------
@@ -29,13 +30,14 @@ env_config:
       Content-Type: "application/json"
 
 # ------------------------------------------------------------
-# 自动登录配置（测试开始前自动获取 Token，用于后续接口鉴权）
+# 自动登录配置（测试开始前自动获取 Token）
+# 敏感信息请通过环境变量注入，格式：${ENV_VAR_NAME}
 # ------------------------------------------------------------
 login:
   auto_login: true
-  username: "test_user"
-  password: "123456"
-  token_key: "data.token"           # 登录响应中 Token 的 JSON 路径
-  token_prefix: "Bearer"            # Authorization 头前缀
+  username: "${TEST_USERNAME}"       # 例：export TEST_USERNAME="test_user"
+  password: "${TEST_PASSWORD}"       # 例：export TEST_PASSWORD="123456"
+  token_key: "data.token"           # 登录响应中 Token 所在的 JSON 路径
+  token_prefix: "Bearer"            # Authorization 头的前缀
   path: "/user/login"               # 登录接口路径
   method: "POST"                    # 请求方法

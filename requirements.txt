@@ -1,9 +1,23 @@
-requests>=2.31.0
-pytest>=8.2.0
-pytest-html>=4.1.1
-pytest-metadata>=3.0.0
-pytest-dependency>=0.6.0
-pytest-base-url>=2.0.0
-allure-pytest>=2.15.0
-pyyaml>=6.0.1
-colorlog>=6.8.0
+# ============================================================
+# requirements.txt
+# Python 依赖清单 —— pip install -r requirements.txt
+# ============================================================
+
+# ---- HTTP 请求 ----
+requests>=2.31.0           # HTTP 客户端库
+
+# ---- 测试框架 ----
+pytest>=8.2.0              # 核心测试框架
+pytest-dependency>=0.6.0   # 用例依赖管理（控制执行顺序）
+pytest-base-url>=2.0.0     # 支持 --base-url 命令行参数
+pytest-html>=4.1.1         # HTML 报告（可选）
+pytest-metadata>=3.0.0     # 报告元数据
+
+# ---- 测试报告 ----
+allure-pytest>=2.15.0      # Allure 报告集成
+
+# ---- 数据处理 ----
+pyyaml>=6.0.1              # YAML 文件读写
+
+# ---- 日志 ----
+colorlog>=6.8.0            # 彩色控制台日志（可选，没有也能用）
