@@ -100,14 +100,60 @@ def user_api(request_util):
     return UserApi(request_util)
 
 
-@pytest.fixture(scope="session")
-def test_data():
+# ============================================================
+# 数据驱动参数化（从 data/user_data.yaml 读取测试数据）
+# 工作原理：
+#   pytest 收集用例时，根据用例所在文件名匹配 yaml 中的数据段
+#   test_01_register.py → register 段
+#   test_02_login.py    → login 段
+#   test_04_update.py   → update 段
+# 用例只需定义 def test_xxx(self, user_api, case): ，case 由这里自动注入
+# ============================================================
+
+# 文件名到 yaml 数据段的映射
+_DATA_MAP = {
+    "test_01_register": "register",
+    "test_02_login": "login",
+    "test_04_update": "update",
+}
+
+# 缓存测试数据（整个会话只读一次 yaml）
+_test_data_cache = None
+
+
+def _get_test_data():
+    """懒加载测试数据，避免重复读取文件"""
+    global _test_data_cache
+    if _test_data_cache is None:
+        data_file = os.path.join(ROOT_DIR, "data", "user_data.yaml")
+        _test_data_cache = read_yaml(data_file)
+    return _test_data_cache
+
+
+def pytest_generate_tests(metafunc):
     """
-    加载测试数据（data/user_data.yaml）
-    - 数据驱动测试的基础，用例从这里读取参数化数据
+    Pytest 钩子：为包含 `case` 参数的用例自动生成参数化
+    - 根据用例所在文件名找到 yaml 中对应的数据段
+    - 每条数据展开为一个独立用例
+    - ids 用 title 字段，报告显示中文名称
     """
-    data_file = os.path.join(ROOT_DIR, "data", "user_data.yaml")
-    return read_yaml(data_file)
+    # 只对有 case 参数的用例做参数化
+    if "case" not in metafunc.fixturenames:
+        return
+
+    # 根据文件名找对应的数据段（如 test_01_register → register）
+    filename = os.path.splitext(os.path.basename(metafunc.module.__file__))[0]
+    data_key = _DATA_MAP.get(filename)
+    if not data_key:
+        return
+
+    test_data = _get_test_data()
+    cases = test_data.get(data_key, [])
+    if not cases:
+        return
+
+    # 注入参数化：每个 case 字典展开为一个用例，title 作为用例名称
+    metafunc.parametrize("case", cases, ids=[c.get("title", f"case_{i}") for i, c in enumerate(cases)])
 
 
 # ============================================================

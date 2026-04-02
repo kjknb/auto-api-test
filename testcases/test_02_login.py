@@ -1,6 +1,7 @@
 # ============================================================
 # testcases/test_02_login.py
 # 登录接口测试 —— 验证用户登录的各种场景
+# 测试数据来源：data/user_data.yaml → login 段
 # 依赖 test_01_register（必须先注册再登录）
 # 登录成功后保存 Token，供后续需要鉴权的接口使用
 # ============================================================
@@ -16,19 +17,10 @@ from common.context_util import get_context, save_context
 class TestLogin:
     """登录接口测试类（依赖注册成功）"""
 
-    @pytest.mark.parametrize("case", [
-        # ---- 正向用例：正确账号密码应该登录成功 ----
-        {"title": "正确登录", "username": "test_user_001", "password": "123456", "expected_code": 0},
-        # ---- 反向用例：错误密码应该返回"密码错误" ----
-        {"title": "错误密码", "username": "test_user_001", "password": "wrong", "expected_code": 1003},
-        # ---- 反向用例：不存在的用户应该返回"用户不存在" ----
-        {"title": "不存在的用户", "username": "non_exist_user", "password": "123456", "expected_code": 1004},
-    ], ids=lambda c: c["title"])
     def test_login(self, user_api: UserApi, case):
         """
-        用户登录测试
-        - 请求 POST /user/login
-        - 断言 HTTP 状态码和业务码
+        用户登录测试（数据驱动）
+        - 数据由 conftest.py 从 data/user_data.yaml 的 login 段读取
         - 登录成功时：保存 Token + 更新请求头（后续接口自动带鉴权）
         """
         print(f"\n📝 测试: {case['title']}")
